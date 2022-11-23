@@ -5,14 +5,44 @@ include('./functions.php');
 include('./db.php');
 
 
-$user = getUserByEmail($_SESSION["email"]);
 $org = getOrgById($_GET['id']);
 $orgImages = explode('/', $org['images']);
 array_shift($orgImages);
 $orgDocs = explode('/', $org['docs']);
 array_shift($orgDocs);
 
-// var_dump($_SESSION["org_id"]);
+// var_dump($org['id']);
+// var_dump($org['id']);
+
+$message = "Update details";
+
+if (isset($_POST['submit'])) {
+
+	$org_name = $_POST['orgName'];
+	$shares_on_sale = $_POST['sharesOnSale'];
+	$share_value = $_POST['shareValue'];
+	$email = $_POST['email'];
+
+	// var_dump($_SESSION);
+
+	// update organizations
+	$response = updateOrgDetails($org_name, $shares_on_sale, $share_value, $email, $org['id']);
+	// var_dump($response);
+
+	if($response){
+		// set organization id , 
+		$_SESSION["email"] = $email;
+		$_SESSION["org_id"] = $org["id"];
+
+		$org = getOrgById($_GET['id']);  // ge the new updated valued from the database
+
+		$message = "Profile updated";
+	} else {
+		echo 'Share details not updated';
+	}
+
+	
+}
 
 ?>
 <!DOCTYPE html>
@@ -219,7 +249,7 @@ array_shift($orgDocs);
 											<td class="text-left">
 											Market Value:    
 											</td>
-											<td>US$' . $org['total_shares'] * $org['share_value'] . '</td>
+											<td>US$' . $org['shares_on_sale'] * $org['share_value'] . '</td>
 										</tr>
 											');
 
@@ -244,6 +274,55 @@ array_shift($orgDocs);
 										<br>
 										<?php echo ($org['details']); ?>
 									</p>
+								</div>
+
+								<!-- add the update form to change stocks on sale and stock price -->
+
+								<div class="col-md-12 d">
+									<div class="card" style="background: whitesmoke;">
+										<div class="card-body">
+											<h6 class="card-title"><?= $message ?></h6>
+											<form class="forms-sample" method="post" >
+												<div class="form-group row">
+													<!-- <div class="col-sm-9">
+														<p style="margin-top:12px"><?= $org['org_name'] ?></p>
+													</div> -->
+												</div>
+												
+												<div class="form-group row">
+													<label for="company_name" class="col-sm-3 col-form-label">Company Name</label>
+													<div class="col-sm-9">
+														<input name="orgName" type="text" class="form-control" id="company_name" value="<?= $org['org_name'] ?>">
+													</div>
+												</div>
+
+												<div class="form-group row">
+													<label for="email" class="col-sm-3 col-form-label">Email</label>
+													<div class="col-sm-9">
+														<input name="email" type="email" class="form-control" id="email" value="<?= $org['email'] ?>">
+													</div>
+												</div>
+
+												<!-- $org['total_shares'] * $org['share_value'] -->
+												<div class="form-group row">
+													<label for="sharesOnSale" class="col-sm-3 col-form-label">Stocks on sale</label>
+													<div class="col-sm-9">
+														<input name="sharesOnSale" type="text" class="form-control" id="sharesOnSale" value="<?= $org['shares_on_sale'] ?>">
+													</div>
+												</div>
+
+												<div class="form-group row">
+													<label for="share_value" class="col-sm-3 col-form-label">Share Value</label>
+													<div class="col-sm-9">
+														<input name="shareValue" type="text" class="form-control" id="stocksOnSale" value="<?= $org['share_value'] ?>">
+													</div>
+												</div>
+												
+
+												<input type="submit" name="submit" class="btn btn-primary mr-2" style="color:black;background:gold;width:150px" value="Update">
+											</form>
+										</div>
+									</div>
 								</div>
 							</div>
 

@@ -36,7 +36,8 @@ if (isset($_POST['submit'])) {
 
         $_SESSION["auth-user"] = TRUE;
         $_SESSION["email"] = $email;
-        $_SESSION["org_id"] = $org["id"];
+        $_SESSION["auth-acc-type"] = 'organization';
+        $_SESSION["org_id"] = $org['id'];
         
         header("Location: org-home.php");
       }

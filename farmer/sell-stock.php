@@ -21,6 +21,7 @@ if (isset($_POST['submit'])) {
 		array_shift($userStocks);
 	}
 	
+	
 	$userStock = $_SESSION["org_id"].'-'.$_SESSION["share_val"];
 	$org = getOrgByID($_SESSION["org_id"]);
 
@@ -36,6 +37,7 @@ if (isset($_POST['submit'])) {
 			updateStockSell($_SESSION["email"], $userStocks);
 			updateUserBalance($_SESSION["email"],$user['balance']+($org['share_value']* $sell));
 			updateShareOnSale(($org['shares_on_sale']+ $sell) ,$_SESSION["org_id"]);
+			addTransaction($user['id'], $org['org_name'], $sell, $org['share_value'], "Selling", ($org['share_value']* $sell) );
 			header("Location: account-history.php");
 
 

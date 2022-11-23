@@ -8,26 +8,31 @@ $user = getUserByEmail($_SESSION["email"]);
 
 
 
-$message = "Top up your account";
-
+$message = "Withdraw from your account";
+$error = "";
 
 if (isset($_POST['submit'])) {
 
 	$total_amount = $_POST['total_amount'];
-	$oldBal = $_POST['total_amount'];
+    $newBal = "";
+    $oldBal = $_POST['total_amount'];
 
-	if ($user['balance'] != "") {
-		$total_amount += $user['balance'];
-	}
+	if ($user['balance'] != "" and $total_amount < $user['balance']) {
+        // check id the total balance is less or equal to user balance
+		$newBal = $user['balance'] -= $total_amount ;
+        $result = updateUserBalance($_SESSION["email"], $newBal);
+        $result1 = addTransaction($user['id'], "-", "-", "-", "Withdraw", $oldBal);
+
+        if ($result && $result1) {
+
+            header("Location: account-history.php");
+        }
+	} else {
+        $error = "Amount greater than user balance, Please Check your withdrawal amount";
+    }
 
 
-	$result = updateUserBalance($_SESSION["email"], $total_amount);
-	$result1 = addTransaction($user['id'], "-", "-", "-", "Top Up", $oldBal);
-
-	if ($result & $result1) {
-
-		header("Location: account-history.php");
-	}
+	
 }
 
 ?>
@@ -98,8 +103,9 @@ if (isset($_POST['submit'])) {
 					<div class="card" style="background:rgba(255, 255, 255, 0.75)">
 						<div class="card-body">
 							<h6 class="card-title text-center"><?= $message ?></h6>
+                            <h6 class="card-title text-center"  style="padding: 12px;color: red"><?= $error ?></h6>
 
-							<label for="cars">Choose payment method:</label>
+							<label for="cars">Choose withdrawal method:</label>
 
 							<select name="cars" id="cars">
 								<option value="ecocash">Ecocash</option>
@@ -114,7 +120,7 @@ if (isset($_POST['submit'])) {
 							<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
 								<br>
 								<div class="form-group">
-									<label for="total_amount">Amount to topup</label>
+									<label for="total_amount">Withdrawal Amount</label>
 									<input name="total_amount" type="number" step="0.01" class="form-control" id="total_amount" required>
 								</div>
 

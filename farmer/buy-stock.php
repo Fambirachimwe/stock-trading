@@ -7,8 +7,10 @@ include('./db.php');
 
 $org = getOrgById($_GET['id']);
 
+
 if(isset($_GET['id'])){
   $_SESSION["stockID"] = $_GET['id'];
+  
 }
 $message = "Buy " . $org['org_name'] . " stock";
 
@@ -17,12 +19,12 @@ if (isset($_POST['submit'])) {
 
   $stockNum = $_POST['stockNum'];
   $_SESSION["stockNum"] = $stockNum;
-
   
-    
-      header("Location: buy-stock2.php");
+  
+  header("Location: buy-stock2.php");
    
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

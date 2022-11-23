@@ -8,6 +8,8 @@ include('./db.php');
 
 $user = getUserByEmail($_SESSION["email"]);
 
+// var_dump($_SESSION["stockID"]);
+
 
 ?>
 

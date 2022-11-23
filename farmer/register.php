@@ -16,12 +16,13 @@ if (isset($_POST['submit'])) {
   $phone = $_POST['phone'];
   $email = $_POST['email'];
   $address = $_POST['address'];
+  $id_number = $_POST['id_number'];
   $password = $_POST['password'];
 
 
 
   if (!userIsRegistered($email)) {
-    $result = registerUser($username, $phone, $email, $address, $password);
+    $result = registerUser($username, $phone, $email, $address, $id_number ,$password);
 
     if ($result) {
       
@@ -96,6 +97,11 @@ if (isset($_POST['submit'])) {
                       <div class="form-group">
                         <label>Address</label>
                         <input name="address" type="text" class="form-control" placeholder="Address" required>
+                      </div>
+
+                      <div class="form-group">
+                        <label>ID Number</label>
+                        <input name="id_number" type="text" class="form-control" placeholder="ID Number" required>
                       </div>
                      
                       <div class="form-group">

@@ -8,6 +8,7 @@ include('./db.php');
 $org = getOrgById($_SESSION["stockID"]);
 $user = getUserByEmail($_SESSION["email"]);
 
+// var_dump($_SESSION["stockNum"]);
 
 $message = "Buy " . $org['org_name'] . " " . $_SESSION["stockNum"] . " stock at  US$ " . ($_SESSION["stockNum"] * $org['share_value']);
 
@@ -17,18 +18,29 @@ if (isset($_POST['submit'])) {
   if ($user['balance'] >= ($_SESSION["stockNum"] * $org['share_value'])) {
     //update user shares 
     $result = updateUserStocks($user["email"], $org["id"], $_SESSION["stockNum"]);
+    // $_result = updateUserStocks2($user["email"], $org["id"], $_SESSION["stockNum"]);
+
+    // var_dump($_result);
 
     if ($result) {
       //update company shares 
       $shares_on_sale = $org["shares_on_sale"] - $_SESSION["stockNum"];
+      // $_SESSION["stockNum"] = 0;
       $result1 = updateOrgOnSaleShares($shares_on_sale, $org["id"]);
       $result2 = updateOrgAddOwner($org["id"], $user['id']);
 
 
       if($result&&$result2){
         //update user balance
+        
+        // var_dump($_SESSION["stockNum"] );
+
         $result =  updateUserBalance($_SESSION["email"], $user['balance']- ($_SESSION["stockNum"] * $org['share_value']));
-        if($result){
+        $amount = $org['share_value'] * $_SESSION["stockNum"];
+
+        // add the transaction to the database
+        $result3 = addTransaction($user['id'], $org['org_name'], $_SESSION["stockNum"], $org['share_value'], "Buying", $amount );
+        if($result && $result3){
           header("Location: my-stock.php");
         }
       }
@@ -117,6 +129,9 @@ if (isset($_POST['submit'])) {
   <!-- inject:js -->
   <script src="assets/vendors/feather-icons/feather.min.js"></script>
   <script src="assets/js/template.js"></script>
+
+  <script src="assets/vendors/datatables.net/jquery.dataTables.js"></script>
+  <script src="assets/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
   <!-- endinject -->
   <!-- custom js for this page -->
   <!-- end custom js for this page -->

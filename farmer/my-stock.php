@@ -8,6 +8,11 @@ include('./db.php');
 
 $user = getUserByEmail($_SESSION["email"]);
 
+// $stocks = getStocksByUserID($user['id']);
+// var_dump($_SESSION["stockNum"] );
+
+
+
 
 ?>
 
@@ -202,6 +207,7 @@ $user = getUserByEmail($_SESSION["email"]);
     <!-- endinject -->
     <!-- custom js for this page -->
     <script src="assets/js/data-table.js"></script>
+    <script src="assets/js/data2-table.js"></script>
     <!-- end custom js for this page -->
 </body>
 

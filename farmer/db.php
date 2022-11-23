@@ -25,13 +25,13 @@ function userIsRegistered($email)
 }
 
 
-function registerUser($username, $phone, $email, $address, $password)
+function registerUser($username, $phone, $email, $address, $id_number ,$password)
 {
     $email = mysqli_real_escape_string($GLOBALS['connection'], $email);
     $address = mysqli_real_escape_string($GLOBALS['connection'], $address);
 
-    $query = "INSERT INTO users (username,phone,email,address,password)
-     values ('{$username}','{$phone}','{$email}','{$address}','{$password}')";
+    $query = "INSERT INTO users (username,phone,email,address,id_number,password)
+     values ('{$username}','{$phone}','{$email}','{$address}','{$id_number}','{$password}')";
     $result = mysqli_query($GLOBALS['connection'], $query);
 
     return $result;
@@ -44,6 +44,16 @@ function updateOrgShares($total_shares, $shares_on_sale, $share_value, $details,
     $query = 'UPDATE organizations SET total_shares=" ' . $total_shares . '", shares_on_sale="' . $shares_on_sale .
         '", share_value="' . $share_value . '", details="' .
         $details . '" WHERE id = "' . $id . '"';
+
+    $result = mysqli_query($GLOBALS['connection'], $query);
+    return $result;
+}
+
+// $org_name, $shares_on_sale, $share_value, $email, $org['id']
+function updateOrgDetails($org_name, $shares_on_sale, $share_value, $email, $id){
+    $query = 'UPDATE organizations SET org_name=" ' . $org_name . '", shares_on_sale="' . $shares_on_sale .
+        '", share_value="' . $share_value . '", email="' .
+        $email . '" WHERE id = "' . $id . '"';
 
     $result = mysqli_query($GLOBALS['connection'], $query);
     return $result;
@@ -219,13 +229,24 @@ function updateUserWatchlist($stockID, $userEmail)
     return $result;
 }
 
+// var_dump($_SESSION['stocks']);
 
+// 6-30/7-50/1-230/1-250
 
-function updateUserStocks($userEmail, $stockID, $number)
-{
+function updateUserStocks($userEmail, $stockID, $number){
+
+    // var_dump($userEmail, $stockID, $number);
     $user = getUserByEmail($userEmail);
+    // echo $user;
     $stocks = [];
     $stocks = explode('/', $user['stocks']);
+
+    function array_search_partial($arr, $keyword) {
+        foreach($arr as $index => $string) {
+            if (strpos($string, $keyword) !== FALSE)
+                return $index;
+        }
+    }
 
     if ($stocks[0] == '/' || $stocks[0] == '') {
         array_shift($stocks);
@@ -233,17 +254,51 @@ function updateUserStocks($userEmail, $stockID, $number)
 
     if(empty($stocks)){
         $stocks[]= '/'.$stockID . '-' . $number;
+        // var_dump($stocks);
     }
     else{
+
+        // var_dump(count($stocks));
+        // $_SESSION['stocks'] = $stocks;
+
+        
         for ($i = 0; $i < count($stocks); $i++) {
 
+            $xx = array_search_partial($stocks, $stockID);
+
             $shares = explode('-', $stocks[$i]);
+            // var_dump($stockID);
             if ($shares[0] == $stockID) {
                 $newShares = $stockID . '-' . ($shares[1] + $number);
                 unset($stocks[$i]);
                 $stocks[] = $newShares;
+                
+            }  
+            else {
+                
+                
+                if(!$xx){
+
+                    $newShares = $stockID . '-' .  $number;
+                    unset($stocks[$xx]);
+                    $stocks[] = $newShares;
+                    break;
+                } 
+                else {
+                    //  get the index of the stocks ... 
+                    $currentShares = explode('-', $stocks[$xx]);
+                    unset($stocks[$xx]);
+                    $stocks[$xx] = $stockID . '-' . ($currentShares[1] + $number);
+                    break;
+                }
             }
+        
         }
+
+        
+
+
+        
     }
 
     
@@ -251,8 +306,15 @@ function updateUserStocks($userEmail, $stockID, $number)
     $query = 'UPDATE users SET stocks="' . implode('/', $stocks) . '" WHERE id = "' . $user['id'] . '"';
 
     $result = mysqli_query($GLOBALS['connection'], $query);
+    // var_dump($stocks);
     return $result;
 }
+
+
+
+
+
+
 function updateStockSell($userEmail, $stocks)
 {
     $user = getUserByEmail($userEmail);
@@ -301,6 +363,10 @@ function getUserByEmail($email)
 
     return FALSE;
 }
+
+
+
+
 function getUserById($id)
 {
     $query = "SELECT * FROM users WHERE id='" . $id . "'";
@@ -413,6 +479,50 @@ function registerOrganization($org_name, $phone, $email, $address, $site_url, $p
 
     return $id;
 }
+
+
+
+// add transaction function
+function addTransaction($userId, $stockId, $volume, $stock_price, $reason, $amount)
+{
+    $email = mysqli_real_escape_string($GLOBALS['connection'], $email);
+    $address = mysqli_real_escape_string($GLOBALS['connection'], $address);
+
+
+    $query = "INSERT INTO transactions (userId,stockId,volume,stock_price,reason,amount)
+    values ('{$userId}','{$stockId}','{$volume}','{$stock_price}','{$reason}','{$amount}')";
+
+    $result = mysqli_query($GLOBALS['connection'], $query) or die(mysqli_error($GLOBALS['connection']));
+    
+    return $result;
+}
+
+function getTransactionByUserId($userId)
+{
+    $query = "SELECT * FROM transactions WHERE userId='" . $userId . "'" ;
+    $result = mysqli_query($GLOBALS['connection'], $query);
+    $transactions = [];
+
+    if (mysqli_num_rows($result) > 0) {
+
+        while ($row = mysqli_fetch_assoc($result)) {
+            $transaction['id'] = $row['id'];
+            $transaction['date'] = $row['date'];
+            $transaction['userId'] = $row['userId'];
+            $transaction['stockId'] = $row['stockId'];
+            $transaction['volume'] = $row['volume'];
+            $transaction['stock_price'] = $row['stock_price'];
+            $transaction['reason'] = $row['reason'];
+            $transaction['amount'] = $row['amount'];
+            
+
+            $transactions[] = $transaction;
+        }
+    }
+
+    return $transactions;
+}
+
 
 
 function loginUser($email, $password)

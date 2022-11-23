@@ -5,9 +5,11 @@ include('./functions.php');
 include('./db.php');
 
 
+// var_dump($_SESSION);
+
 
 $user = getUserByEmail($_SESSION["email"]);
-
+$transactions = getTransactionByUserId($user['id']);
 
 ?>
 
@@ -140,33 +142,94 @@ $user = getUserByEmail($_SESSION["email"]);
                             </a>
 
                         </p>
+            
+                    </div>
+
+                    <div class="col-md-2" style="margin-top: 24px;">
+    
+                        <p class="text-right">
+                            <a style="padding: 12px;color: red" <?php
+
+                                                                        echo ('href="withdraw.php?id=' . $user['id'] . '"')
+
+                                                                        ?>>
+                                <i data-feather="dollar-sign"></i>Withdraw
+                            </a>
+
+                        </p>
                     </div>
 
 
-                    <table class="table table-striped" style="margin-top:30px">
-                        <thead>
+                    <div class="table-responsive" style="margin-top: 30px;">
 
+                        <table id="dataTableExample2" class="table" style="margin-top:30px">
+                            <thead>
+
+                            </thead>
+                            <tbody>
+                                <?php
+                                $balance  =  0;
+                                if ($user['balance'] != "") {
+                                    $balance = $user['balance'];
+                                }
+
+                                echo ('<tr>
+                                        <td class="text-left">Current balance:</td>
+                                        <td>US$ ' . $balance . '</td>
+                                        </tr>
+                                    ');
+                                ?>
+
+
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                    <!-- add user transaction table here -->
+
+                    <div class="col-md-8">
+                        <h5 class="text-left lead">
+                            <br>
+                            Transaction History 
+                        </h5>
+                    </div>
+
+                    
+                    <table id="dataTableExample" class="table table-striped" style="margin-top:30px">
+                        <thead>
+                            <tr>
+                                <th style="color:#335D2D;font-weight:750">Id</th>
+                                <th style="color:#335D2D;font-weight:750">Date</th>
+                                
+                                <th style="color:#335D2D;font-weight:750">Stock ID</th>
+                                <th style="color:#335D2D;font-weight:750">Volume</th>
+                                <th style="color:#335D2D;font-weight:750">Stock Price</th>
+                                <th style="color:#335D2D;font-weight:750">Reason</th>
+                                <th style="color:#335D2D;font-weight:750">Amount</th>
+                                </tr>
                         </thead>
+
                         <tbody>
-                            <?php
-                            $balance  =  0;
-                            if ($user['balance'] != "") {
-                                $balance = $user['balance'];
+
+                        <!-- display user transactions here -->
+
+                        <?php
+
+                            foreach ($transactions  as $transaction) {
+                                echo ('<tr>');
+                                echo ('<td>' . $transaction['id'] . '</td>');
+                                echo ('<td>' . $transaction['date'] . '</td>');
+                            
+                                echo ('<td>' . $transaction['stockId'] . '</td>');
+                                echo ('<td>' . $transaction['volume'] . '</td>');
+                                echo ('<td>' . $transaction['stock_price'] . '</td>');
+                                echo ('<td>' . $transaction['reason'] . '</td>');
+                                echo ('<td>' . $transaction['amount'] . '</td>');
+                                echo ('<tr>');
                             }
 
-                            echo ('
-											<tr>
-											<td class="text-left">Current balance:</td>
-											<td>US$ ' . $balance . '</td>
-										</tr>
-											');
-
-
-
-
-
-                            ?>
-
+                        ?>
 
                         </tbody>
                     </table>
@@ -181,8 +244,8 @@ $user = getUserByEmail($_SESSION["email"]);
         </div>
     </div>
 
-    <!-- core:js -->
-    <script src="assets/vendors/core/core.js"></script>
+   <!-- core:js -->
+   <script src="assets/vendors/core/core.js"></script>
     <!-- endinject -->
     <!-- plugin js for this page -->
     <script src="assets/vendors/datatables.net/jquery.dataTables.js"></script>
@@ -194,6 +257,9 @@ $user = getUserByEmail($_SESSION["email"]);
     <!-- endinject -->
     <!-- custom js for this page -->
     <script src="assets/js/data-table.js"></script>
+    <!-- end custom js for this page -->
+
+    
     <!-- end custom js for this page -->
 </body>
 
